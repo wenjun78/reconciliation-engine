@@ -85,7 +85,7 @@ class Adapter(EngineCase):
         os.chmod(path, 0o644)
         os.makedirs(self.state, exist_ok=True)
         os.chmod(self.state, 0o777)
-        prefix = [os.path.join(app, "run")]
+        prefix = ["/bin/sh", os.path.join(app, "run")]
         if os.geteuid() == 0 and shutil.which("setpriv"):
             prefix = ["setpriv", "--reuid=65534", "--regid=65534", "--clear-groups", *prefix]
         env = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "HOME": "/nonexistent"}
