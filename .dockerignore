@@ -1,0 +1,13 @@
+.git
+.gitignore
+__pycache__
+*.pyc
+.pytest_cache
+.venv
+.env
+bench_out
+state
+out
+scale-data
+ai_logs
+*.sqlite3*

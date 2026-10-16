@@ -1,0 +1,33 @@
+# Continuous verification: unit/scenario suite, public fixture, Docker image build and
+# the container contract (read-only root, arbitrary UID).  Runs on every push, so the
+# Docker build is verified even on a machine without Docker installed.
+name: ci
+on: [push, pull_request]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit, scenario, recovery, privacy and differential tests
+        run: python3 -I -m unittest discover -s tests -p 'test_*.py'
+      - name: Public fixture in sorted, reversed and shuffled delivery, both engines
+        run: |
+          python3 -I tools/public_check.py
+          python3 -I tools/public_check.py --engine full
+          python3 -I tools/public_check.py --order reverse
+          python3 -I tools/public_check.py --order shuffle:7
+      - name: Mutation harness (fast mode)
+        run: python3 -I tests/mutation/run_mutants.py --fast
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image (asserts Python 3.12 + SQLite, self-tests the public fixture offline)
+        run: docker build -t recon:local .
+      - name: Container contract — read-only root, tmpfs /tmp, uid 12345, mounted state/out
+        run: ./tools/docker_fixture.sh
+      - name: Test suite inside the image as non-root on a read-only root filesystem
+        run: docker run --rm --read-only --tmpfs /tmp --entrypoint python3 -w /app recon:local -I -m unittest discover -s tests -p 'test_*.py'

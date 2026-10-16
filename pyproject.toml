@@ -1,0 +1,13 @@
+[project]
+name = "recon"
+version = "1.0.0"
+description = "Reconciliation engine: recoverable, knowledge-time-correct merchant settlements"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest==8.3.5"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

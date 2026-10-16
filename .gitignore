@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.env
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+bench_out/
+state/
+out/
+/scale-data/
+*.tmp
+.recon-*

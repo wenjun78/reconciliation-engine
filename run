@@ -1,0 +1,12 @@
+#!/bin/sh
+# Adapter required by the specification.  Every operation goes through here:
+#   ./run ingest   --input F --state S [--failpoint after-stage|before-commit]
+#   ./run snapshot --query Q --state S --out R
+#   ./run status|explain|check ...
+# Pure POSIX sh; resolves its own directory so it works from any cwd and at
+# /app/run inside the container.  Python runs in isolated mode (-I): no user
+# site, no PYTHONPATH, no cwd on sys.path; bytecode writing is disabled so a
+# read-only /app is fine.
+set -eu
+here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+PYTHONDONTWRITEBYTECODE=1 exec "${RECON_PYTHON:-python3}" -I "$here/bin/recon-cli.py" "$@"
