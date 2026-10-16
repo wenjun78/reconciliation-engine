@@ -16,9 +16,10 @@ done
 for q in fixtures/queries/*.json; do
   n=$(basename "$q")
   docker run --rm --read-only --tmpfs /tmp --user "$uid" \
-    -v "$PWD/fixtures:/fixtures:ro" -v "$work/state:/state" -v "$work/out:/out" "$img" \
-    snapshot --query "/fixtures/queries/$n" --state /state --out "/out/$n"
-  python3 -c "import json,sys; a=json.load(open('$work/out/$n')); b=json.load(open('fixtures/expected/$n')); sys.exit(0 if a==b else 1)" \
+    -v "$PWD/fixtures:/fixtures:ro" -v "$work/out:/out:ro" \
+    --entrypoint python3 "$img" \
+    -c 'import json,sys; a=json.load(open(sys.argv[1])); b=json.load(open(sys.argv[2])); sys.exit(0 if a==b else 1)' \
+    "/out/$n" "/fixtures/expected/$n" \
     && echo "ok $n" || { echo "MISMATCH $n"; exit 1; }
 done
 echo "container contract: all public queries match (uid=$uid, read-only root)"
